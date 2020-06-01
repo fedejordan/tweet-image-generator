@@ -8,12 +8,16 @@ import numpy as np
 margin_x = 32
 margin_y = 28
 final_size = (1200, 606)
+twitter_name_x = 150
+twitter_name_y = margin_y + 8
 
 # Fonts
 font_file = "./fonts/SF-Pro-Display-Medium.otf"
 font_bold = "./fonts/SF-Pro-Display-Bold.otf"
+header_font_size = 32
 
 #Colors
+first_text_color = "white"
 secondary_text_color = (136, 153, 166);
 background_color = (21, 32, 43)
 
@@ -35,18 +39,12 @@ def get_drawer_with_background():
 	final_image = Image.new('RGB', final_size, color = background_color)
 	return (ImageDraw.Draw(final_image), final_image)
 
-def generate_tweet_image(twitter_name, twitter_account, text, date_text, image_url, is_verified, destination):
-	drawer, final_image = get_drawer_with_background()
-
-	# Twitter name
-	header_font_size = 32
-	twitter_name_x = 150
-	twitter_name_y = margin_y + 8
+def generate_twitter_name_and_get_width(drawer, twitter_name):
 	text_font = ImageFont.truetype(font_bold, header_font_size)
-	twitter_name_width = text_font.getsize(twitter_name)[0]
-	drawer.text((twitter_name_x, twitter_name_y), twitter_name, font=text_font, fill="white")
+	drawer.text((twitter_name_x, twitter_name_y), twitter_name, font=text_font, fill=first_text_color)
+	return text_font.getsize(twitter_name)[0]
 
-	# Verified image
+def generate_verified_image(final_image, is_verified, twitter_name_width):	
 	if is_verified:
 		verified_image_x = twitter_name_x + twitter_name_width + 5
 		verified_image_y = twitter_name_y
@@ -58,13 +56,12 @@ def generate_tweet_image(twitter_name, twitter_account, text, date_text, image_u
 		final_image.paste(verified_image, (verified_image_x, verified_image_y), verified_image)
 		os.remove('verified-white.png')
 
-
-	# Twitter account
+def generate_twitter_account(drawer, twitter_account):
 	twitter_account_y = twitter_name_y + 38
 	text_font = ImageFont.truetype(font_file, header_font_size)
 	drawer.text((150, twitter_account_y), twitter_account, font=text_font, fill=secondary_text_color)
 
-	# Main text
+def generate_main_text_and_get_final_y(drawer, text):
 	y_text_position = 151
 	x_text_margin = margin_x
 	text_lines_spacing = 10
@@ -72,13 +69,15 @@ def generate_tweet_image(twitter_name, twitter_account, text, date_text, image_u
 	for line in textwrap.wrap(text, width=54):
 	    drawer.text((x_text_margin, y_text_position), line, font=text_font, fill="white")
 	    y_text_position += text_font.getsize(line)[1] + text_lines_spacing
+	return y_text_position
 
-	# Date
+def generate_date_and_get_final_y(drawer, date_text, y_text_position):
 	date_y = y_text_position + 22
 	text_font = ImageFont.truetype(font_file, 32)
 	drawer.text((30, date_y), date_text, font=text_font, fill=secondary_text_color)
+	return date_y
 
-	# Download and insert image
+def download_and_insert_image(final_image, image_url):
 	image_file = 'tweet-image.jpg'
 	urllib.request.urlretrieve(image_url, image_file)
 	tweet_image = Image.open(image_file, 'r')
@@ -91,12 +90,23 @@ def generate_tweet_image(twitter_name, twitter_account, text, date_text, image_u
 	final_image.paste(tweet_image, (margin_x, margin_y), mask_im)
 	os.remove(image_file)
 
-	# Crop
+def crop_final_image(final_image, date_y):
 	final_height = date_y + 50
 	w, h = final_image.size
 	final_image = final_image.crop((0, 0, w, final_height))
 
-	# Save file
+def save_image(final_image, destination):
 	final_image.save(destination)
+
+def generate_tweet_image(twitter_name, twitter_account, text, date_text, image_url, is_verified, destination):
+	drawer, final_image = get_drawer_with_background()
+	twitter_name_width = generate_twitter_name_and_get_width(drawer, twitter_name)
+	generate_verified_image(final_image, is_verified, twitter_name_width)
+	generate_twitter_account(drawer, twitter_account)
+	y_text_position = generate_main_text_and_get_final_y(drawer, text)
+	date_y = generate_date_and_get_final_y(drawer, date_text, y_text_position)
+	download_and_insert_image(final_image, image_url)
+	crop_final_image(final_image, date_y)
+	save_image(final_image, destination)
 
 generate_tweet_image(twitter_name, twitter_account, text, date_text, image_url, is_verified, destination)

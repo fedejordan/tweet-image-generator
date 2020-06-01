@@ -109,4 +109,23 @@ def generate_tweet_image(twitter_name, twitter_account, text, date_text, image_u
 	crop_final_image(final_image, date_y)
 	save_image(final_image, destination)
 
-generate_tweet_image(twitter_name, twitter_account, text, date_text, image_url, is_verified, destination)
+def capture_args():
+	parser = argparse.ArgumentParser(description='Generates a tweeet image based on parameters')
+	parser.add_argument('--twitter-name', dest='twitter_name', type=str, 
+	                   help='Name of account (title)')
+	parser.add_argument('--twitter-account', dest='twitter_account', type=str, 
+	                   help='Account (username on twitter)')
+	parser.add_argument('--text', dest='text', type=str, 
+	                   help='Tweet text')
+	parser.add_argument('--date-text', dest='date_text', type=str, 
+	                   help='Date in text format, for instance: "6:09 p.m. · 30 may. 2020"')
+	parser.add_argument('--image-url', dest='image_url', type=str, 
+	                   help='URL of twitter image')
+	parser.add_argument('--is-verified', dest='is_verified', type=str, 
+	                   help='Boolean value, tells if image should show verified icon')
+	parser.add_argument('--destination', dest='destination', type=str, default='generated-image.png',
+	                   help='output file to export list (default generated-image.png)')
+	return parser.parse_args()
+
+args = capture_args()
+generate_tweet_image(args.twitter_name, args.twitter_account, args.text, args.date_text, args.image_url, args.is_verified, args.destination)

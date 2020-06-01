@@ -94,7 +94,7 @@ def download_and_insert_image(final_image, image_url):
 def crop_final_image(final_image, date_y):
 	final_height = date_y + 50
 	w, h = final_image.size
-	final_image = final_image.crop((0, 0, w, final_height))
+	return final_image.crop((0, 0, w, final_height))
 
 def save_image(final_image, destination):
 	final_image.save(destination)
@@ -107,7 +107,7 @@ def generate_tweet_image(twitter_name, twitter_account, text, date_text, image_u
 	y_text_position = generate_main_text_and_get_final_y(drawer, text)
 	date_y = generate_date_and_get_final_y(drawer, date_text, y_text_position)
 	download_and_insert_image(final_image, image_url)
-	crop_final_image(final_image, date_y)
+	final_image = crop_final_image(final_image, date_y)
 	save_image(final_image, destination)
 
 def capture_args():

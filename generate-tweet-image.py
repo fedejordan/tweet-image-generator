@@ -21,6 +21,7 @@ header_font_size = 32
 first_text_color = "white"
 secondary_text_color = (136, 153, 166);
 background_color = (21, 32, 43)
+links_color = (27, 149, 224)
 
 def generate_white_image(source, destination):
 	im = Image.open(source)
@@ -62,14 +63,50 @@ def generate_twitter_account(drawer, twitter_account):
 	text_font = ImageFont.truetype(font_file, header_font_size)
 	drawer.text((150, twitter_account_y), twitter_account, font=text_font, fill=secondary_text_color)
 
+def is_valid_url(url):
+    import re
+    regex = re.compile(
+        r'^https?://'  # http:// or https://
+        r'(?:(?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+[A-Z]{2,6}\.?|'  # domain...
+        r'localhost|'  # localhost...
+        r'\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})' # ...or ip
+        r'(?::\d+)?'  # optional port
+        r'(?:/?|[/?]\S+)$', re.IGNORECASE)
+    return url is not None and regex.search(url)
+
+def contains_url(text):
+	for part in text.split(' '):
+		if is_valid_url(part):
+			return True
+	return False
+
 def generate_main_text_and_get_final_y(drawer, text):
 	y_text_position = 151
 	x_text_margin = margin_x
 	text_lines_spacing = 10
 	text_font = ImageFont.truetype(font_file, 46)
 	for line in textwrap.wrap(text, width=54):
-	    drawer.text((x_text_margin, y_text_position), line, font=text_font, fill="white")
-	    y_text_position += text_font.getsize(line)[1] + text_lines_spacing
+		if '@' in line or '#' in line or contains_url(line):
+			print('Blue text: ' + line)
+			string_parts = line.split(' ')
+			next_x = 0
+			for index, part in enumerate(string_parts):
+				if '@' in part or '#' in part or is_valid_url(part):
+					color = links_color
+				else:
+					color = 'white'
+				part_text_to_measure = ' ' + part
+				# se puede guardar el ancho del espacio para no tener que crear un canvas todo el tiempo
+				part_canvas = Image.new('RGB', (500, 100))
+				part_draw = ImageDraw.Draw(part_canvas)
+				part_draw.text((0, 0), part_text_to_measure, font=text_font, fill='white')
+				part_box = part_canvas.getbbox()
+				part_width = part_box[2]
+				drawer.text((x_text_margin + next_x, y_text_position), part, font=text_font, fill=color)
+				next_x += part_width
+		else:
+			drawer.text((x_text_margin, y_text_position), line, font=text_font, fill="white")
+		y_text_position += text_font.getsize(line)[1] + text_lines_spacing
 	return y_text_position
 
 def generate_date_and_get_final_y(drawer, date_text, y_text_position):
@@ -105,6 +142,7 @@ def generate_tweet_image(twitter_name, twitter_account, text, date_text, image_u
 	generate_verified_image(final_image, is_verified, twitter_name_width)
 	generate_twitter_account(drawer, twitter_account)
 	y_text_position = generate_main_text_and_get_final_y(drawer, text)
+
 	date_y = generate_date_and_get_final_y(drawer, date_text, y_text_position)
 	download_and_insert_image(final_image, image_url)
 	final_image = crop_final_image(final_image, date_y)
@@ -130,4 +168,5 @@ def capture_args():
 
 args = capture_args()
 print(args)
+
 generate_tweet_image(args.twitter_name, args.twitter_account, args.text, args.date_text, args.image_url, args.is_verified, args.destination)

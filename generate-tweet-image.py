@@ -8,7 +8,7 @@ import argparse
 # Numbers
 margin_x = 32
 margin_y = 28
-final_size = (1200, 1200)
+final_size = (1200, 2400)
 twitter_name_x = 150
 twitter_name_y = margin_y + 8
 
@@ -118,19 +118,6 @@ def generate_main_text_and_get_final_y(drawer, text):
 		y_text_position += text_font.getsize(line)[1] + text_lines_spacing
 	return y_text_position
 
-def add_corners(im, rad):
-    circle = Image.new('L', (rad * 2, rad * 2), 0)
-    draw = ImageDraw.Draw(circle)
-    draw.ellipse((0, 0, rad * 2, rad * 2), fill=255)
-    alpha = Image.new('L', im.size, 255)
-    w, h = im.size
-    alpha.paste(circle.crop((0, 0, rad, rad)), (0, 0))
-    alpha.paste(circle.crop((0, rad, rad, rad * 2)), (0, h - rad))
-    alpha.paste(circle.crop((rad, 0, rad * 2, rad)), (w - rad, 0))
-    alpha.paste(circle.crop((rad, rad, rad * 2, rad * 2)), (w - rad, h - rad))
-    im.putalpha(alpha)
-    return im
-
 # 566x408
 def generate_images_and_get_final_y(final_image, images, y_position):
 	if images != '' and images != None:
@@ -138,7 +125,7 @@ def generate_images_and_get_final_y(final_image, images, y_position):
 		images = images.split(',')
 		image_url = images[0]
 		width = final_size[0] - margin_x * 2
-		height = int(float(width) * 0.72)
+		height = int(float(width) * 0.67)
 		tweet_image = get_image_from_url_with_size(image_url, (width, height))
 		mask_im = Image.new("L", tweet_image.size, 0)
 		mask_draw = ImageDraw.Draw(mask_im)

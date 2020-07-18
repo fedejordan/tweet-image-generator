@@ -82,7 +82,6 @@ def generate_twitter_account(drawer, twitter_account):
 def is_valid_url(url):
     import re
     regex = re.compile(
-        r'^https?://'  # http:// or https://
         r'(?:(?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+[A-Z]{2,6}\.?|'  # domain...
         r'localhost|'  # localhost...
         r'\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})' # ...or ip
@@ -181,7 +180,7 @@ def capture_args():
 class ArgsClass:
 	twitter_name = "Alberto Fernández"
 	twitter_account = "alferdez"
-	text = 'Anabel Fernández Sagasti (@anabelfsagasti),senadora por Mendoza, en #HabraConsecuencias @eldestape_radio: "Ayer varios de la oposición hicieron comentarios sobre Vicentin con liviandad y el @alferdez ratificó que la expropiación es un instrumento para que la empresa no colapse'
+	text = 'ldsaldsa dsa dsa das sad markup.o'
 	image_url = "https://pbs.twimg.com/profile_images/1192149786503327744/l232oveZ_bigger.jpg"
 	date_text = "7:03 p. m. · 15 jul. 2020"
 	is_verified = True

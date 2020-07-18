@@ -175,15 +175,15 @@ def capture_args():
 	                   help='output file to export list (default generated-image.png)')
 	return parser.parse_args()
 
-# args = capture_args()
-# print(args)
-class ArgsClass:
-	twitter_name = "Alberto Fernández"
-	twitter_account = "alferdez"
-	text = 'ldsaldsa dsa dsa das sad markup.o'
-	image_url = "https://pbs.twimg.com/profile_images/1192149786503327744/l232oveZ_bigger.jpg"
-	date_text = "7:03 p. m. · 15 jul. 2020"
-	is_verified = True
-	destination = 'generated-image.png'
-args = ArgsClass()
+args = capture_args()
+print(args)
+# class ArgsClass:
+# 	twitter_name = "Alberto Fernández"
+# 	twitter_account = "alferdez"
+# 	text = 'ldsaldsa dsa dsa das sad markup.o'
+# 	image_url = "https://pbs.twimg.com/profile_images/1192149786503327744/l232oveZ_bigger.jpg"
+# 	date_text = "7:03 p. m. · 15 jul. 2020"
+# 	is_verified = True
+# 	destination = 'generated-image.png'
+# args = ArgsClass()
 generate_tweet_image(args.twitter_name, args.twitter_account, args.text, args.date_text, args.image_url, args.is_verified, args.destination)

@@ -107,7 +107,7 @@ def generate_main_text_and_get_final_y(drawer, text):
 			string_parts = line.split(' ')
 			next_x = 0
 			for index, part in enumerate(string_parts):
-				if '@' in part or '#' in part or is_valid_url(part):
+				if '@' == part[0] or '#' == part[0] or is_valid_url(part):
 					color = links_color
 				else:
 					color = 'white'

@@ -8,7 +8,7 @@ import argparse
 # Numbers
 margin_x = 32
 margin_y = 28
-final_size = (1200, 606)
+final_size = (1200, 1200)
 twitter_name_x = 150
 twitter_name_y = margin_y + 8
 
@@ -118,24 +118,68 @@ def generate_main_text_and_get_final_y(drawer, text):
 		y_text_position += text_font.getsize(line)[1] + text_lines_spacing
 	return y_text_position
 
+def add_corners(im, rad):
+    circle = Image.new('L', (rad * 2, rad * 2), 0)
+    draw = ImageDraw.Draw(circle)
+    draw.ellipse((0, 0, rad * 2, rad * 2), fill=255)
+    alpha = Image.new('L', im.size, 255)
+    w, h = im.size
+    alpha.paste(circle.crop((0, 0, rad, rad)), (0, 0))
+    alpha.paste(circle.crop((0, rad, rad, rad * 2)), (0, h - rad))
+    alpha.paste(circle.crop((rad, 0, rad * 2, rad)), (w - rad, 0))
+    alpha.paste(circle.crop((rad, rad, rad * 2, rad * 2)), (w - rad, h - rad))
+    im.putalpha(alpha)
+    return im
+
+# 566x408
+def generate_images_and_get_final_y(final_image, images, y_position):
+	if images != '' and images != None:
+		y_position += 5
+		images = images.split(',')
+		image_url = 'https://pbs.twimg.com/media/' + images[0] + '?format=png&name=large'
+		width = final_size[0] - margin_x * 2
+		height = int(float(width) * 0.72)
+		tweet_image = get_image_from_url_with_size(image_url, (width, height))
+		mask_im = Image.new("L", tweet_image.size, 0)
+		mask_draw = ImageDraw.Draw(mask_im)
+		radius = 50
+		mask_draw.ellipse((0, 0, radius, radius), fill=255)
+		mask_draw.rectangle((radius / 2, 0, width - radius / 2 , radius), fill=255)
+		mask_draw.ellipse((width - radius, 0, width, radius), fill=255)
+		mask_draw.rectangle((width - radius, radius / 2, width, height - radius / 2), fill=255)
+		mask_draw.ellipse((width - radius, height - radius, width, height), fill=255)
+		mask_draw.rectangle((width - radius / 2, height - radius, radius / 2, height), fill=255)
+		mask_draw.ellipse((0, height - radius, radius, height), fill=255)
+		mask_draw.rectangle((0, height - radius / 2, radius, radius / 2), fill=255)
+		mask_draw.rectangle((radius, radius, width - radius, height - radius), fill=255)
+		final_image.paste(tweet_image, (margin_x, y_position), mask_im)
+		return y_position + height
+		return
+	else:
+		return y_position
+
 def generate_date_and_get_final_y(drawer, date_text, y_text_position):
 	date_y = y_text_position + 22
 	text_font = ImageFont.truetype(font_file, 32)
 	drawer.text((30, date_y), date_text, font=text_font, fill=secondary_text_color)
 	return date_y
 
-def download_and_insert_image(final_image, image_url):
+def get_image_from_url_with_size(image_url, size):
+	print('Getting ' + image_url)
 	image_file = 'tweet-image.jpg'
 	urllib.request.urlretrieve(image_url, image_file)
 	tweet_image = Image.open(image_file, 'r')
-	tweet_imageSize = 96
-	tweet_image = tweet_image.resize((tweet_imageSize, tweet_imageSize), Image.ANTIALIAS)
+	tweet_imageSize = size
+	tweet_image = tweet_image.resize(tweet_imageSize, Image.ANTIALIAS)
+	return tweet_image
+
+def download_and_insert_image(final_image, image_url):
+	tweet_image = get_image_from_url_with_size(image_url, (96, 96))
 	h,w = tweet_image.size
 	mask_im = Image.new("L", tweet_image.size, 0)
 	mask_draw = ImageDraw.Draw(mask_im)
 	mask_draw.ellipse((0, 0, w, h), fill=255)
 	final_image.paste(tweet_image, (margin_x, margin_y), mask_im)
-	os.remove(image_file)
 
 def crop_final_image(final_image, date_y):
 	final_height = date_y + 50
@@ -145,14 +189,17 @@ def crop_final_image(final_image, date_y):
 def save_image(final_image, destination):
 	final_image.save(destination)
 
-def generate_tweet_image(twitter_name, twitter_account, text, date_text, image_url, is_verified, destination):
+def generate_tweet_image(twitter_name, twitter_account, text, date_text, image_url, is_verified, images, destination):
 	drawer, final_image = get_drawer_with_background()
 	twitter_name_width = generate_twitter_name_and_get_width(drawer, twitter_name)
 	generate_verified_image(final_image, is_verified, twitter_name_width)
 	generate_twitter_account(drawer, twitter_account)
 	y_text_position = generate_main_text_and_get_final_y(drawer, text)
-
-	date_y = generate_date_and_get_final_y(drawer, date_text, y_text_position)
+	print('y_text_position: ' + str(y_text_position))
+	images_y = generate_images_and_get_final_y(final_image, images, y_text_position)
+	print('images_y: ' + str(images_y))
+	date_y = generate_date_and_get_final_y(drawer, date_text, images_y)
+	print('date_y: ' + str(date_y))
 	download_and_insert_image(final_image, image_url)
 	final_image = crop_final_image(final_image, date_y)
 	save_image(final_image, destination)
@@ -171,19 +218,11 @@ def capture_args():
 	                   help='URL of twitter image', required=True)
 	parser.add_argument('--is-verified', dest='is_verified', type=str, 
 	                   help='Boolean value, tells if image should show verified icon', required=True)
+	parser.add_argument('--images', dest='images', type=str, 
+	                   help='Images ids separated by comma', required=False)
 	parser.add_argument('--destination', dest='destination', type=str, default='generated-image.png',
 	                   help='output file to export list (default generated-image.png)')
 	return parser.parse_args()
 
 args = capture_args()
-print(args)
-# class ArgsClass:
-# 	twitter_name = "Alberto Fernández"
-# 	twitter_account = "alferdez"
-# 	text = 'ldsaldsa dsa dsa das sad markup.o'
-# 	image_url = "https://pbs.twimg.com/profile_images/1192149786503327744/l232oveZ_bigger.jpg"
-# 	date_text = "7:03 p. m. · 15 jul. 2020"
-# 	is_verified = True
-# 	destination = 'generated-image.png'
-# args = ArgsClass()
-generate_tweet_image(args.twitter_name, args.twitter_account, args.text, args.date_text, args.image_url, args.is_verified, args.destination)
+generate_tweet_image(args.twitter_name, args.twitter_account, args.text, args.date_text, args.image_url, args.is_verified, args.images, args.destination)

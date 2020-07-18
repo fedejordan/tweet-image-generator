@@ -12,6 +12,7 @@ final_size = (1200, 606)
 twitter_name_x = 150
 twitter_name_y = margin_y + 8
 
+
 # Fonts
 font_file = "./fonts/SF-Pro-Display-Medium.otf"
 font_bold = "./fonts/SF-Pro-Display-Bold.otf"
@@ -22,6 +23,21 @@ first_text_color = "white"
 secondary_text_color = (136, 153, 166);
 background_color = (21, 32, 43)
 links_color = (27, 149, 224)
+
+def get_width_for_text(text: str):
+	text_font = ImageFont.truetype(font_file, 46)
+	part_canvas = Image.new('RGB', (500, 100))
+	part_draw = ImageDraw.Draw(part_canvas)
+	part_draw.text((0, 0), text, font=text_font, fill='white')
+	part_box = part_canvas.getbbox()
+	return part_box[2]
+
+def get_space_width():
+	width_text_without_space = get_width_for_text('ab')
+	width_text_with_space = get_width_for_text('a b')
+	return width_text_with_space - width_text_without_space
+
+space_width = get_space_width()
 
 def generate_white_image(source, destination):
 	im = Image.open(source)
@@ -95,15 +111,9 @@ def generate_main_text_and_get_final_y(drawer, text):
 					color = links_color
 				else:
 					color = 'white'
-				part_text_to_measure = ' ' + part
-				# se puede guardar el ancho del espacio para no tener que crear un canvas todo el tiempo
-				part_canvas = Image.new('RGB', (500, 100))
-				part_draw = ImageDraw.Draw(part_canvas)
-				part_draw.text((0, 0), part_text_to_measure, font=text_font, fill='white')
-				part_box = part_canvas.getbbox()
-				part_width = part_box[2]
+				part_width = get_width_for_text(text=part)
 				drawer.text((x_text_margin + next_x, y_text_position), part, font=text_font, fill=color)
-				next_x += part_width
+				next_x += part_width + space_width
 		else:
 			drawer.text((x_text_margin, y_text_position), line, font=text_font, fill="white")
 		y_text_position += text_font.getsize(line)[1] + text_lines_spacing
@@ -166,7 +176,15 @@ def capture_args():
 	                   help='output file to export list (default generated-image.png)')
 	return parser.parse_args()
 
-args = capture_args()
-print(args)
-
+# args = capture_args()
+# print(args)
+class ArgsClass:
+	twitter_name = "Alberto Fernández"
+	twitter_account = "alferdez"
+	text = 'Anabel Fernández Sagasti (@anabelfsagasti),senadora por Mendoza, en #HabraConsecuencias @eldestape_radio: "Ayer varios de la oposición hicieron comentarios sobre Vicentin con liviandad y el @alferdez ratificó que la expropiación es un instrumento para que la empresa no colapse'
+	image_url = "https://pbs.twimg.com/profile_images/1192149786503327744/l232oveZ_bigger.jpg"
+	date_text = "7:03 p. m. · 15 jul. 2020"
+	is_verified = True
+	destination = 'generated-image.png'
+args = ArgsClass()
 generate_tweet_image(args.twitter_name, args.twitter_account, args.text, args.date_text, args.image_url, args.is_verified, args.destination)

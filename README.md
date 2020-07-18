@@ -21,5 +21,4 @@ This will generate an image like this:
 
 ### Roadmap
 - Light mode
-- Tweets with photos
-- Be able to visualize hashtags and links with blue color
+- Tweets with photos (more than 1)

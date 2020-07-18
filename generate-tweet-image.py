@@ -136,7 +136,7 @@ def generate_images_and_get_final_y(final_image, images, y_position):
 	if images != '' and images != None:
 		y_position += 5
 		images = images.split(',')
-		image_url = 'https://pbs.twimg.com/media/' + images[0] + '?format=png&name=large'
+		image_url = images[0]
 		width = final_size[0] - margin_x * 2
 		height = int(float(width) * 0.72)
 		tweet_image = get_image_from_url_with_size(image_url, (width, height))
@@ -219,7 +219,7 @@ def capture_args():
 	parser.add_argument('--is-verified', dest='is_verified', type=str, 
 	                   help='Boolean value, tells if image should show verified icon', required=True)
 	parser.add_argument('--images', dest='images', type=str, 
-	                   help='Images ids separated by comma', required=False)
+	                   help='Images urls separated by comma', required=False)
 	parser.add_argument('--destination', dest='destination', type=str, default='generated-image.png',
 	                   help='output file to export list (default generated-image.png)')
 	return parser.parse_args()

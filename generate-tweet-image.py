@@ -126,7 +126,11 @@ def generate_images_and_get_final_y(final_image, images, y_position):
 		image_url = images[0]
 		width = final_size[0] - margin_x * 2
 		height = int(float(width) * 0.67)
-		tweet_image = get_image_from_url_with_size(image_url, (width, height))
+		tweet_image = get_image_from_url(image_url)
+		aspect = tweet_image.size[0] / tweet_image.size[1]
+		height = width / aspect
+		tweet_imageSize = (int(width), int(height))
+		tweet_image = tweet_image.resize(tweet_imageSize, Image.ANTIALIAS)
 		mask_im = Image.new("L", tweet_image.size, 0)
 		mask_draw = ImageDraw.Draw(mask_im)
 		radius = 50
@@ -151,11 +155,15 @@ def generate_date_and_get_final_y(drawer, date_text, y_text_position):
 	drawer.text((30, date_y), date_text, font=text_font, fill=secondary_text_color)
 	return date_y
 
-def get_image_from_url_with_size(image_url, size):
+def get_image_from_url(image_url):
 	print('Getting ' + image_url)
 	image_file = 'tweet-image.jpg'
 	urllib.request.urlretrieve(image_url, image_file)
 	tweet_image = Image.open(image_file, 'r')
+	return tweet_image
+
+def get_image_from_url_with_size(image_url, size):
+	tweet_image = get_image_from_url(image_url)
 	tweet_imageSize = size
 	tweet_image = tweet_image.resize(tweet_imageSize, Image.ANTIALIAS)
 	return tweet_image

@@ -77,7 +77,7 @@ def generate_verified_image(final_image, is_verified, twitter_name_width):
 def generate_twitter_account(drawer, twitter_account):
 	twitter_account_y = twitter_name_y + 38
 	text_font = ImageFont.truetype(font_file, header_font_size)
-	drawer.text((150, twitter_account_y), twitter_account, font=text_font, fill=secondary_text_color)
+	drawer.text((twitter_name_x, twitter_account_y), twitter_account, font=text_font, fill=secondary_text_color)
 
 def is_valid_url(url):
     import re

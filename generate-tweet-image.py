@@ -193,7 +193,7 @@ def generate_tweet_image(twitter_name, twitter_account, text, date_text, image_u
 	print('y_text_position: ' + str(y_text_position))
 	images_y = generate_images_and_get_final_y(final_image, images, y_text_position)
 	print('images_y: ' + str(images_y))
-	date_y = generate_date_and_get_final_y(drawer, date_text, images_y)
+	date_y = images_y
 	print('date_y: ' + str(date_y))
 	download_and_insert_image(final_image, image_url)
 	final_image = crop_final_image(final_image, date_y)

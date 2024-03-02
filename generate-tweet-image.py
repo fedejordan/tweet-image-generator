@@ -19,9 +19,9 @@ font_bold = "./fonts/SF-Pro-Display-Bold.otf"
 header_font_size = 32
 
 #Colors
-first_text_color = "white"
-secondary_text_color = (136, 153, 166);
-background_color = (21, 32, 43)
+first_text_color = "black"
+secondary_text_color = (136, 153, 166)
+background_color = (255, 255, 255)
 links_color = (27, 149, 224)
 
 def get_width_for_text(text: str):
@@ -109,12 +109,12 @@ def generate_main_text_and_get_final_y(drawer, text):
 				if '@' == part[0] or '#' == part[0] or is_valid_url(part):
 					color = links_color
 				else:
-					color = 'white'
+					color = 'black'
 				part_width = get_width_for_text(text=part)
 				drawer.text((x_text_margin + next_x, y_text_position), part, font=text_font, fill=color)
 				next_x += part_width + space_width
 		else:
-			drawer.text((x_text_margin, y_text_position), line, font=text_font, fill="white")
+			drawer.text((x_text_margin, y_text_position), line, font=text_font, fill="black")
 		y_text_position += text_font.getsize(line)[1] + text_lines_spacing
 	return y_text_position
 
@@ -158,7 +158,7 @@ def generate_date_and_get_final_y(drawer, date_text, y_text_position):
 def get_image_from_url(image_url):
 	print('Getting ' + image_url)
 	image_file = 'tweet-image.jpg'
-	urllib.request.urlretrieve(image_url, image_file)
+	# urllib.request.urlretrieve(image_url, image_file)
 	tweet_image = Image.open(image_file, 'r')
 	return tweet_image
 

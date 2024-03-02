@@ -14,9 +14,12 @@ twitter_name_y = margin_y + 8
 
 
 # Fonts
-font_file = "./fonts/SF-Pro-Display-Medium.otf"
-font_bold = "./fonts/SF-Pro-Display-Bold.otf"
+script_dir = os.path.dirname(os.path.abspath(__file__))
+font_file = os.path.join(script_dir, "fonts", "SF-Pro-Display-Medium.otf")
+font_bold = os.path.join(script_dir, "fonts", "SF-Pro-Display-Bold.otf")
 header_font_size = 32
+
+verified_image_file = os.path.join(script_dir, "images", "verified.png")
 
 #Colors
 first_text_color = "black"
@@ -67,7 +70,7 @@ def generate_verified_image(final_image, is_verified, twitter_name_width):
 		verified_image_x = twitter_name_x + twitter_name_width + 5
 		verified_image_y = twitter_name_y
 		verified_image_white_file = 'verified-white.png'
-		generate_white_image('images/verified.png', verified_image_white_file)
+		generate_white_image(verified_image_file, verified_image_white_file)
 		verified_image = Image.open(verified_image_white_file, 'r')
 		verified_image_width = 40
 		verified_image = verified_image.resize([verified_image_width, verified_image_width], Image.ANTIALIAS)
@@ -157,7 +160,7 @@ def generate_date_and_get_final_y(drawer, date_text, y_text_position):
 
 def get_image_from_url(image_url):
 	print('Getting ' + image_url)
-	image_file = 'tweet-image.jpg'
+	image_file = os.path.join(script_dir, "tweet-image.jpg")
 	# urllib.request.urlretrieve(image_url, image_file)
 	tweet_image = Image.open(image_file, 'r')
 	return tweet_image
@@ -182,6 +185,7 @@ def crop_final_image(final_image, date_y):
 	return final_image.crop((0, 0, w, final_height))
 
 def save_image(final_image, destination):
+	# print(destination)
 	final_image.save(destination)
 
 def generate_tweet_image(twitter_name, twitter_account, text, date_text, image_url, is_verified, images, destination):
@@ -199,25 +203,5 @@ def generate_tweet_image(twitter_name, twitter_account, text, date_text, image_u
 	final_image = crop_final_image(final_image, date_y)
 	save_image(final_image, destination)
 
-def capture_args():
-	parser = argparse.ArgumentParser(description='Generates a tweeet image based on parameters')
-	parser.add_argument('--twitter-name', dest='twitter_name', type=str, 
-	                   help='Name of account (title)', required=True)
-	parser.add_argument('--twitter-account', dest='twitter_account', type=str, 
-	                   help='Account (username on twitter)', required=True)
-	parser.add_argument('--text', dest='text', type=str, 
-	                   help='Tweet text', required=True)
-	parser.add_argument('--date-text', dest='date_text', type=str, 
-	                   help='Date in text format, for instance: "6:09 p.m. · 30 may. 2020"', required=True)
-	parser.add_argument('--image-url', dest='image_url', type=str, 
-	                   help='URL of twitter image', required=True)
-	parser.add_argument('--is-verified', dest='is_verified', type=str, 
-	                   help='Boolean value, tells if image should show verified icon', required=True)
-	parser.add_argument('--images', dest='images', type=str, 
-	                   help='Images urls separated by comma', required=False)
-	parser.add_argument('--destination', dest='destination', type=str, default='generated-image.png',
-	                   help='output file to export list (default generated-image.png)')
-	return parser.parse_args()
-
-args = capture_args()
-generate_tweet_image(args.twitter_name, args.twitter_account, args.text, args.date_text, args.image_url, args.is_verified, args.images, args.destination)
+def generate(text):
+	generate_tweet_image("Reddit Tales", "RedditTales", text, "", "", True, "", "./generate-image.png")
